@@ -1,6 +1,6 @@
 # TBD
 import click
-from vectordb import poor_mans_vectordb, search_vectordb
+from services.vectordb_service import poor_mans_vectordb, search_vectordb
 from services.openai_service import get_chat_completion, manage_conversation
 from services.logger_service import get_logger
 

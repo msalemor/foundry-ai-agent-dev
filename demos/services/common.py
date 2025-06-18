@@ -1,5 +1,5 @@
-from ckvstore import CategoryKeyValueStore
-from services.logger_service import get_logger
+from ckvstore_service import CategoryKeyValueStore
+from logger_service import get_logger
 
 logger = get_logger(__name__)
 store = CategoryKeyValueStore()

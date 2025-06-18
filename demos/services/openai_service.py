@@ -1,6 +1,6 @@
 from openai import AsyncAzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
-from settings import get_settings
+from services.settings_service import get_settings
 from services.logger_service import get_logger
 
 logger = get_logger(__name__)

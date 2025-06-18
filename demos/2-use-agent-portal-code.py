@@ -8,8 +8,8 @@ from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 
 # NOTE: Added the CKVStore
-from ckvstore import CategoryKeyValueStore
-from settings import get_settings
+from services.ckvstore_service import CategoryKeyValueStore
+from services.settings_service import get_settings
 from services.logger_service import get_logger
 
 logger = get_logger(__name__)
