@@ -7,7 +7,7 @@ logger = get_logger(__name__)
 def read_file():
     logger.info("Reading file content...")
     # Read file as text
-    file_path = "demos/faq.md"  # Replace with your file path
+    file_path = "demos/data/faq.md"  # Replace with your file path
 
     file_content = None
     with open(file_path, "r", encoding="utf-8") as file:
