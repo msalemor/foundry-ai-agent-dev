@@ -10,6 +10,9 @@ from azure.identity import DefaultAzureCredential
 # NOTE: Added the CKVStore
 from ckvstore import CategoryKeyValueStore
 from settings import get_settings
+from services.logger_service import get_logger
+
+logger = get_logger(__name__)
 
 if __name__ == "__main__":
 

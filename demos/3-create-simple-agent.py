@@ -12,7 +12,7 @@ from azure.identity import DefaultAzureCredential
 from ckvstore import CategoryKeyValueStore
 from common import agent_cleanup
 from settings import get_settings
-from logger import get_logger
+from services.logger_service import get_logger
 
 logger = get_logger(__name__)
 

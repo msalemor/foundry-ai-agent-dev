@@ -3,7 +3,7 @@ import sqlite3
 import json
 from typing import Dict, Any, Optional, List
 
-from logger import get_logger
+from services.logger_service import get_logger
 
 logger = get_logger(__name__)
 

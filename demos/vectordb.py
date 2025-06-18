@@ -1,5 +1,5 @@
-from openaitools import get_embeddings
-from logger import get_logger
+from services.openai_service import get_embeddings
+from services.logger_service import get_logger
 
 logger = get_logger(__name__)
 
