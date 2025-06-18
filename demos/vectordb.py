@@ -18,7 +18,7 @@ def read_file():
     return file_content
 
 
-async def get_vectordb():
+async def poor_mans_vectordb():
     """Create a simple vector database from the file content."""
     logger.info("Creating vector database from file content...")
     paragraphs = read_file().split("\n\n")

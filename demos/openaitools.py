@@ -25,6 +25,16 @@ else:
     )
 
 
+def manage_conversation(conversation):
+    """Manage the conversation history."""
+    # always keep the system message as the first message and the last five messages
+    logger.info(f"Managing conversation history, current length: {len(conversation)}")
+
+    if len(conversation) > 5:
+        conversation = conversation[:1] + conversation[-4:]
+    return conversation
+
+
 async def get_chat_completion(messages: list) -> str:
     try:
         if messages:

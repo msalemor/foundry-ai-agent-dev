@@ -1,25 +1,16 @@
 # TBD
 import click
-from vectordb import get_vectordb, search_vectordb
-from openaitools import get_chat_completion
+from vectordb import poor_mans_vectordb, search_vectordb
+from openaitools import get_chat_completion, manage_conversation
 from logger import get_logger
 
 logger = get_logger(__name__)
 
 
-def manage_conversation(conversation):
-    """Manage the conversation history."""
-    # always keep the system message as the first message and the last five messages
-    logger.info(f"Managing conversation history, current length: {len(conversation)}")
-
-    if len(conversation) > 5:
-        conversation = conversation[:1] + conversation[-4:]
-    return conversation
-
-
 async def main():
 
-    vectordb = await get_vectordb()
+    vectordb = await poor_mans_vectordb()
+    # NOTE: I could recall the conversation state from a file or database
     conversation = [
         {
             "role": "system",
@@ -29,6 +20,7 @@ async def main():
     while True:
         prompt = input("Enter your prompt [exit or quit]: ")
         if prompt.lower() in ["exit", "quit"]:
+            # NOTE: I could serialize and save the conversation state to a file or database
             break
 
         results = await search_vectordb(prompt, vectordb)
@@ -36,10 +28,13 @@ async def main():
 
         if results:
             context = "\n".join(chunk for chunk, _ in results)
+            logger.info(
+                f"A snipt of the RAG content is: {context[:80]}..."
+            )  # Log first 80 chars
 
         message = {"role": "user", "content": prompt + "\n\n" + context}
+
         conversation.append(message)
-        # print("User:", prompt)
         click.echo(click.style(f"User: {prompt}", fg="cyan"))
 
         res = await get_chat_completion(messages=manage_conversation(conversation))
