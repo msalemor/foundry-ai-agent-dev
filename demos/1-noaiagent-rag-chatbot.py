@@ -2,7 +2,7 @@
 import click
 from vectordb import poor_mans_vectordb, search_vectordb
 from openaitools import get_chat_completion, manage_conversation
-from logger import get_logger
+from services.logger_service import get_logger
 
 logger = get_logger(__name__)
 
