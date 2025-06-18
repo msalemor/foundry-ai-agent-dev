@@ -24,21 +24,21 @@ async def main():
             break
 
         results = await search_vectordb(prompt, vectordb)
-        context = ""
 
+        context = ""
         if results:
             context = "\n".join(chunk for chunk, _ in results)
-            logger.info(
-                f"A snipt of the RAG content is: {context[:80]}..."
-            )  # Log first 80 chars
+            logger.info(f"RAG content snippet: {context[:80]}...")  # Log first 80 chars
 
+        # Create and add a user message to the conversation
         message = {"role": "user", "content": prompt + "\n\n" + context}
-
         conversation.append(message)
         click.echo(click.style(f"User: {prompt}", fg="cyan"))
 
+        # process the completion
         res = await get_chat_completion(messages=manage_conversation(conversation))
 
+        # Add the completion content to the conversation
         conversation.append({"role": "assistant", "content": res})
         click.echo(click.style(f"Assistant: {res}", fg="green"))
 
