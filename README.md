@@ -1,5 +1,6 @@
-# foundry-ai-agent-dev
-Development with Azure AI Foundry AI Agents
+# Azure AI Foundry - AI Agent Development
+
+Development with Azure AI Foundry AI Agents.
 
 ## Overview of Azure AI Foundry AI Agents
 
