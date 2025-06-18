@@ -70,8 +70,12 @@ def process(userid: str, prompt: str) -> str:
         if run.status == "completed":
             messages = project_client.agents.list_messages(thread_id=thread.id)
             return messages.data[0].content if messages else "No response"
-        if run.status == "expired" or run.status == "failed":
-            print("Run expired")
+        if (
+            run.status == "expired"
+            or run.status == "failed"
+            or run.status == "cancelled"
+        ):
+            print("Run failed, expired or cancelled")
             return ""
         if run.status == "requires_action":
             print("Run requires action, retrying...")
