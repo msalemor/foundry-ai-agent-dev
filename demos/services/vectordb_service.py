@@ -28,7 +28,7 @@ async def poor_mans_vectordb():
     return poor_man_vectordb
 
 
-def consine_similarity(vec1, vec2):
+def _consine_similarity(vec1, vec2):
     """Calculate cosine similarity between two vectors."""
     logger.info("Calculating cosine similarity...")
     if len(vec1) != len(vec2):
@@ -49,7 +49,7 @@ async def search_vectordb(
     query_embedding = await get_embeddings(query)
     results = []
     for item in vectordb:
-        similarity = consine_similarity(query_embedding, item["emb"])
+        similarity = _consine_similarity(query_embedding, item["emb"])
         if similarity >= relevance:
             results.append((item["chunk"], similarity))
 
