@@ -16,15 +16,15 @@ logger = get_logger(__name__)
 
 if __name__ == "__main__":
 
-    CATEGORY = "portal-agent"
+    AGENT_NAME = "portal-agent"
 
     store = CategoryKeyValueStore()
-    store.set(CATEGORY, "agentid", "asst_vSadmbuvzji9rmoGGrN5yrPg")
-    store.set(CATEGORY, "threadid", "thread_O3tVMv81IoTqzNeXEiJfXLnx")
+    store.set(AGENT_NAME, "agentid", "asst_vSadmbuvzji9rmoGGrN5yrPg")
+    store.set(AGENT_NAME, "threadid", "thread_O3tVMv81IoTqzNeXEiJfXLnx")
 
     conn_str = get_settings().connection_string
-    agentid = store.get(CATEGORY, "agentid")
-    threadid = store.get(CATEGORY, "threadid")
+    agentid = store.get(AGENT_NAME, "agentid")
+    threadid = store.get(AGENT_NAME, "threadid")
 
     # Get a project client
     project_client = AIProjectClient.from_connection_string(

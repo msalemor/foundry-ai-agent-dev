@@ -35,7 +35,7 @@ logger = get_logger(__name__)
 
 
 store = CategoryKeyValueStore()
-CATEGORY = "full-agent"
+AGENT_NAME = "full-agent"
 CLEANUP = True
 
 
@@ -51,7 +51,7 @@ functions = FunctionTool(functions=user_functions)
 file_path = "demos/data/failed_banks.csv"
 code_file = get_openai_file(project_client, file_path)
 if code_file:
-    store.set(CATEGORY, "file-" + str(uuid.uuid4())[:8], code_file.id)
+    store.set(AGENT_NAME, "file-" + str(uuid.uuid4())[:8], code_file.id)
 code_interpreter = CodeInterpreterTool(file_ids=[code_file.id])
 
 # Adding File search
@@ -59,7 +59,7 @@ code_interpreter = CodeInterpreterTool(file_ids=[code_file.id])
 file_path = "demos/data/faq.md"
 file = get_openai_file(project_client, file_path)
 if file:
-    store.set(CATEGORY, "file-" + str(uuid.uuid4())[:8], file.id)
+    store.set(AGENT_NAME, "file-" + str(uuid.uuid4())[:8], file.id)
 vector_store = project_client.agents.create_vector_store_and_poll(
     data_sources=[], name="sample_vector_store", file_ids=[file.id]
 )
@@ -76,19 +76,19 @@ tool_set.add(file_search)
 def create_recall_agent() -> any:
     logger.info("Creating or retrieving recall agent...")
     agent = None
-    agent_id = store.get(CATEGORY, "agentid")
+    agent_id = store.get(AGENT_NAME, "agentid")
     if agent_id:
         agent = project_client.agents.get_agent(agent_id)
     else:
         agent = project_client.agents.create_agent(
             model="gpt-4o",
-            name=CATEGORY,
+            name=AGENT_NAME,
             description="A simple agent for demonstration purposes.",
             instructions="You are a helpful assistant.",
             temperature=0.1,
             toolset=tool_set,
         )
-        store.set(CATEGORY, "agentid", agent.id)
+        store.set(AGENT_NAME, "agentid", agent.id)
     return agent
 
 
@@ -99,12 +99,12 @@ def process(userid: str, prompt: str) -> str:
     logger.info(f"Processing prompt for user {userid}: {prompt}")
 
     thread = None
-    if store.exists(CATEGORY, "thread-" + userid):
-        thread_id = store.get(CATEGORY, "thread-" + userid)
+    if store.exists(AGENT_NAME, "thread-" + userid):
+        thread_id = store.get(AGENT_NAME, "thread-" + userid)
         thread = project_client.agents.get_thread(thread_id)
     else:
         thread = project_client.agents.create_thread()
-        store.set(CATEGORY, "thread-" + userid, thread.id)
+        store.set(AGENT_NAME, "thread-" + userid, thread.id)
 
     message = project_client.agents.create_message(
         thread_id=thread.id, role="user", content=prompt
@@ -167,4 +167,4 @@ if __name__ == "__main__":
     # print(process("user2", "What is the capital of Germany?"))
 
     if CLEANUP:
-        agent_cleanup(project_client, CATEGORY, agent.id)
+        agent_cleanup(project_client, AGENT_NAME, agent.id)
