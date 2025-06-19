@@ -10,20 +10,7 @@ from services.agent_service import AgentService
 from azure.ai.agents.models import FunctionTool, ToolSet
 from tools.tools import tools_delegate, user_functions
 
-CLEAN_UP = True
-AGENT_NAME = "api-agent-demo"
-
-state = CategoryKeyValueStore()
-agent_id = state.get(AGENT_NAME, "agentid")
-
-functions = FunctionTool(functions=user_functions)
-tool_set = ToolSet()
-tool_set.add(functions)
-
-agent = AgentService(AGENT_NAME, toolset=tool_set, tools_delegate=tools_delegate)
-agent.create_or_reload_agent(agent_id)
-
-# Pending
+# region: FastAPI Setup
 app = FastAPI()
 
 
@@ -43,6 +30,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# endregion
+
+# region: Agent setup
+CLEAN_UP = True
+AGENT_NAME = "api-agent-demo"
+
+state = CategoryKeyValueStore()
+agent_id = state.get(AGENT_NAME, "agentid")
+
+functions = FunctionTool(functions=user_functions)
+tool_set = ToolSet()
+tool_set.add(functions)
+# endregion
+
+agent = AgentService(AGENT_NAME, toolset=tool_set, tools_delegate=tools_delegate)
+agent.create_or_reload_agent(agent_id)
 
 
 @app.post("/process", response_model=Response)
