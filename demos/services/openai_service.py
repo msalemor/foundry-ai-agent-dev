@@ -25,8 +25,17 @@ else:
     )
 
 
-def manage_conversation(conversation):
-    """Manage the conversation history."""
+def manage_conversation(conversation: list) -> list:
+    """Manage the conversation history.
+    This function ensures that the conversation history does not exceed a certain length
+    by keeping the system message as the first message and the last five messages.
+
+    Args:
+        conversation (list): The current conversation history.
+
+    Returns:
+        list: The managed conversation history.
+    """
     # always keep the system message as the first message and the last five messages
     logger.info(f"Managing conversation history, current length: {len(conversation)}")
 
@@ -35,7 +44,8 @@ def manage_conversation(conversation):
     return conversation
 
 
-async def get_chat_completion(messages: list) -> str:
+async def get_chat_completion(messages: list, temperature: float = 0.1) -> str:
+    """Get chat completion from OpenAI API."""
     try:
         if messages:
             logger.info(f"Processing chat completion")
@@ -51,6 +61,7 @@ async def get_chat_completion(messages: list) -> str:
 
 
 async def get_embeddings(text: str) -> list[float]:
+    """Generate embeddings for the given text using OpenAI API."""
     try:
         if text:
             logger.info(

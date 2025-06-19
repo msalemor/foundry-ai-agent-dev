@@ -6,6 +6,15 @@ store = CategoryKeyValueStore()
 
 
 def get_openai_file(client, file_path: str) -> any:  # OpenAI file
+    """ "Uploads a file to OpenAI and returns the file object.
+    Args:
+        client: The OpenAI client instance.
+        file_path: The path to the file to be uploaded.
+
+    Returns:
+        The uploaded file object if successful, None otherwise.
+    """
+    logger.info(f"Uploading file: {file_path}")
     try:
         file = client.agents.upload_file_and_poll(
             file_path=file_path, purpose="assistants"
@@ -17,7 +26,14 @@ def get_openai_file(client, file_path: str) -> any:  # OpenAI file
 
 
 def agent_cleanup(client, category: str, agent_id: str) -> None:
+    """Cleans up the agent and its associated resources in the specified category.
 
+    Args:
+        client: The OpenAI client instance.
+        category: The category under which the agent and resources are stored.
+        agent_id: The ID of the agent to be deleted.
+    """
+    logger.info(f"Starting cleanup for category: {category}, agent_id: {agent_id}")
     items = store.get_category(category)
     if items:
         for key in items.keys():
