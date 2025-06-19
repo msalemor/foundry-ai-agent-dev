@@ -4,22 +4,32 @@
 # - Implement a cleanup function to remove agents and threads
 
 
+import json
 from time import sleep
+import uuid
+
+import click
 from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
-from azure.ai.agents.models import FunctionTool, CodeInterpreterTool
+from azure.ai.agents.models import (
+    FunctionTool,
+    CodeInterpreterTool,
+    FileSearchTool,
+    FilePurpose,
+    ToolSet,
+    ToolResources,
+    FileSearchToolResource,
+    FileSearchToolDefinition,
+    CodeInterpreterToolDefinition,
+    CodeInterpreterToolResource,
+)
 
-from tools.weather_tool import fetch_weather
-from tools.tools import user_functions
+from tools.tools import tools_delegate, user_functions
 
-code_interpreter = CodeInterpreterTool()
-resources = code_interpreter.resources
-functions = FunctionTool(functions=user_functions)
-definitions = functions.definitions
 
 # NOTE: Added the CKVStore
 from services.ckvstore_service import CategoryKeyValueStore
-from services.common import agent_cleanup
+from services.common import agent_cleanup, get_openai_file
 from services.settings_service import get_settings
 from services.logger_service import get_logger
 
@@ -28,12 +38,41 @@ logger = get_logger(__name__)
 
 store = CategoryKeyValueStore()
 CATEGORY = "full-agent"
-CLEANUP = False
+CLEANUP = True
 
 
 project_client = AIProjectClient.from_connection_string(
     conn_str=get_settings().connection_string, credential=DefaultAzureCredential()
 )
+
+
+# Adding tools
+functions = FunctionTool(functions=user_functions)
+
+# Code interpreter tool
+file_path = "demos/data/failed_banks.csv"
+code_file = get_openai_file(project_client, file_path)
+if code_file:
+    store.set(CATEGORY, "file-" + str(uuid.uuid4())[:8], code_file.id)
+code_interpreter = CodeInterpreterTool(file_ids=[code_file.id])
+
+# Adding File search
+# Define the path to the file to be uploaded
+file_path = "demos/data/faq.md"
+file = get_openai_file(project_client, file_path)
+if file:
+    store.set(CATEGORY, "file-" + str(uuid.uuid4())[:8], file.id)
+vector_store = project_client.agents.create_vector_store_and_poll(
+    data_sources=[], name="sample_vector_store", file_ids=[file.id]
+)
+# # Create a vector store with the uploaded file
+file_search = FileSearchTool(vector_store_ids=[vector_store.id])
+
+tool_set = ToolSet()
+tool_set.add(functions)
+tool_set.add(code_interpreter)
+# Add file search tool if file is successfully uploaded
+tool_set.add(file_search)
 
 
 def create_recall_agent() -> any:
@@ -45,11 +84,11 @@ def create_recall_agent() -> any:
     else:
         agent = project_client.agents.create_agent(
             model="gpt-4o",
-            name="Simple Agent",
+            name=CATEGORY,
             description="A simple agent for demonstration purposes.",
             instructions="You are a helpful assistant.",
             temperature=0.1,
-            tools=[code_interpreter.definitions, functions.definitions],
+            toolset=tool_set,
         )
         store.set(CATEGORY, "agentid", agent.id)
     return agent
@@ -88,17 +127,7 @@ def process(userid: str, prompt: str) -> str:
             print("Run failed, expired or cancelled")
             return ""
         if run.status == "requires_action":
-            tool_calls = run.required_action.submit_tool_outputs.tool_calls
-            tool_outputs = []
-            for tool_call in tool_calls:
-                if tool_call.name == "fetch_weather":
-                    output = fetch_weather("New York")
-                    tool_outputs.append(
-                        {"tool_call_id": tool_call.id, "output": output}
-                    )
-            project_client.agents.runs.submit_tool_outputs(
-                thread_id=thread.id, run_id=run.id, tool_outputs=tool_outputs
-            )
+            tools_delegate(project_client, thread, run)
         sleep(0.5)
 
     # run = project_client.agents.create_and_process_run(
@@ -111,8 +140,33 @@ def process(userid: str, prompt: str) -> str:
 
 if __name__ == "__main__":
 
-    print(process("user1", "What is the capital of France?"))
-    print(process("user2", "What is the capital of Germany?"))
+    click.echo(
+        click.style(
+            process(
+                "user1", "What is the current time? What is the weather in New York?"
+            ),
+            fg="green",
+        )
+    )
+    click.echo(
+        click.style(
+            process("user1", "What are the company values?"),
+            fg="green",
+        )
+    )
+    click.echo(
+        click.style(
+            process("user1", "What is the 1001st prime number?"),
+            fg="green",
+        )
+    )
+    click.echo(
+        click.style(
+            process("user1", "Generate a chart of y=x^2 where x=[-5,5]?"),
+            fg="green",
+        )
+    )
+    # print(process("user2", "What is the capital of Germany?"))
 
     if CLEANUP:
         agent_cleanup(project_client, CATEGORY, agent.id)

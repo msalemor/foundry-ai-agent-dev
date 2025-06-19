@@ -5,6 +5,17 @@ logger = get_logger(__name__)
 store = CategoryKeyValueStore()
 
 
+def get_openai_file(client, file_path: str) -> any:  # OpenAI file
+    try:
+        file = client.agents.upload_file_and_poll(
+            file_path=file_path, purpose="assistants"
+        )
+        return file
+    except Exception as e:
+        logger.exception(f"Error uploading file {file_path}: {e}")
+        return None
+
+
 def agent_cleanup(client, category: str, agent_id: str) -> None:
 
     items = store.get_category(category)
@@ -18,6 +29,14 @@ def agent_cleanup(client, category: str, agent_id: str) -> None:
                     store.delete(category, key)
                 except Exception as e:
                     logger.exception(f"Error deleting thread {thread_id}: {e}")
+            if key.startswith("file-"):
+                logger.info(f"Deleting file for key: {key}")
+                file_id = items[key]
+                try:
+                    client.agents.delete_file(file_id)
+                    store.delete(category, key)
+                except Exception as e:
+                    logger.exception(f"Error deleting file {file_id}: {e}")
 
     if agent_id:
         try:
