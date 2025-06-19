@@ -9,6 +9,7 @@ from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 from azure.ai.agents.models import FunctionTool, CodeInterpreterTool
 
+from tools.weather_tool import fetch_weather
 from tools.tools import user_functions
 
 code_interpreter = CodeInterpreterTool()
@@ -17,16 +18,16 @@ functions = FunctionTool(functions=user_functions)
 definitions = functions.definitions
 
 # NOTE: Added the CKVStore
-from demos.services.ckvstore_service import CategoryKeyValueStore
-from demos.services.common import agent_cleanup
-from demos.services.settings_service import get_settings
+from services.ckvstore_service import CategoryKeyValueStore
+from services.common import agent_cleanup
+from services.settings_service import get_settings
 from services.logger_service import get_logger
 
 logger = get_logger(__name__)
 
 
 store = CategoryKeyValueStore()
-CATEGORY = "simple-agent"
+CATEGORY = "full-agent"
 CLEANUP = False
 
 
@@ -87,8 +88,17 @@ def process(userid: str, prompt: str) -> str:
             print("Run failed, expired or cancelled")
             return ""
         if run.status == "requires_action":
-            print("Run requires action, retrying...")
-            return ""
+            tool_calls = run.required_action.submit_tool_outputs.tool_calls
+            tool_outputs = []
+            for tool_call in tool_calls:
+                if tool_call.name == "fetch_weather":
+                    output = fetch_weather("New York")
+                    tool_outputs.append(
+                        {"tool_call_id": tool_call.id, "output": output}
+                    )
+            project_client.agents.runs.submit_tool_outputs(
+                thread_id=thread.id, run_id=run.id, tool_outputs=tool_outputs
+            )
         sleep(0.5)
 
     # run = project_client.agents.create_and_process_run(

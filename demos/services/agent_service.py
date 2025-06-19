@@ -5,8 +5,14 @@ logger = get_logger(__name__)
 
 
 class AgentService:
-    def __init__(self, agent):
-        self.agent = agent
+    def __init__(
+        self,
+        description,
+        instruction,
+        code_interpreter=False,
+        tools=[],
+        tools_delegate=None,
+    ):
         self.client = None  # Placeholder for client, e.g., a database or API client
         self.state = CategoryKeyValueStore()
 

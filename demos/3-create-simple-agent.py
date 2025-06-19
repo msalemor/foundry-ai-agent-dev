@@ -8,10 +8,12 @@ from time import sleep
 from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 
+import click
+
 # NOTE: Added the CKVStore
-from demos.services.ckvstore_service import CategoryKeyValueStore
-from demos.services.common import agent_cleanup
-from demos.services.settings_service import get_settings
+from services.ckvstore_service import CategoryKeyValueStore
+from services.common import agent_cleanup
+from services.settings_service import get_settings
 from services.logger_service import get_logger
 
 logger = get_logger(__name__)
@@ -92,8 +94,12 @@ def process(userid: str, prompt: str) -> str:
 
 if __name__ == "__main__":
 
-    print(process("user1", "What is the capital of France?"))
-    print(process("user2", "What is the capital of Germany?"))
+    click.echo(
+        click.style(process("user1", "What is the capital of France?"), fg="green")
+    )
+    click.echo(
+        click.style(process("user2", "What is the capital of Germany?"), fg="green")
+    )
 
     if CLEANUP:
         agent_cleanup(project_client, CATEGORY, agent.id)
