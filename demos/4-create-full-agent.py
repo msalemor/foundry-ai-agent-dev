@@ -1,8 +1,6 @@
 # Concepts:
-# - Create a simple agent or reload
-# - Handle threads, messages and runs for different users
-# - Implement a cleanup function to remove agents and threads
-
+# - Created or recall agent
+# - Added Tools, Code Interpreter, File Search
 
 import json
 from time import sleep
