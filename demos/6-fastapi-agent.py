@@ -52,9 +52,9 @@ agent.create_or_reload_agent(agent_id)
 async def process(
     request: Request,
 ):
-    # Dummy response to simulate OpenAI chat completion
-    # Replace this with actual OpenAI API call if needed
+    # Call the agent and process the user's prompt
     if not request.userid or not request.prompt:
+        # the user id and prompt are required
         raise HTTPException(status_code=400, detail="userid and prompt are required")
 
     response = str(agent.process(request.userid, request.prompt))
