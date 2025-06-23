@@ -4,6 +4,7 @@
 # - Print the role and content of each message
 
 # pip install azure-ai-projects==1.0.0b10
+import click
 from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 
@@ -54,4 +55,4 @@ if __name__ == "__main__":
     # Display the role and content of each message
     # NOTE: The first message is the last message in the thread
     for message in messages.data:
-        print(message.role, message.content)
+        click.echo(click.style(f"{message.role}, {message.content}", fg="green"))

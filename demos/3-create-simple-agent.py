@@ -100,6 +100,11 @@ if __name__ == "__main__":
     click.echo(
         click.style(process("user2", "What is the capital of Germany?"), fg="green")
     )
+    click.echo(
+        click.style(
+            process("user2", "Generate a graph of y=x^2 where x=[-2,2]"), fg="green"
+        )
+    )
 
     if CLEANUP:
         agent_cleanup(project_client, AGENT_NAME, agent.id)
