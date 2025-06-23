@@ -17,10 +17,10 @@ Azure AI Foundry AI Agents is a comprehensive platform for building, deploying, 
 
 ### Core Components
 
+- **Projects**: Organizational units that group related agents and resources
 - **Agents**: The AI entities that interact with users, configured with specific instructions and capabilities
 - **Threads**: Conversation sessions that maintain context across multiple message exchanges
 - **Messages**: Individual communication units within a thread (user inputs and agent responses)
-- **Projects**: Organizational units that group related agents and resources
 
 ### Use Cases
 
@@ -39,3 +39,12 @@ This repository demonstrates how to:
 3. Store agent configurations and state
 4. Integrate with Azure AI Projects
 5. Handle authentication and security
+
+## Demos
+
+1. [No AI Agent](./demos/1-noaiagent-rag-chatbot.py)
+2. [AI Agent - Portal Code](./demos/2-use-agent-portal-code.py)
+3. [Simple AI Agent](./demos/3-create-simple-agent.py)
+4. [Full AI Agent](./demos/4-create-full-agent.py)
+5. [AI Agent Class](./demos/5-full-agent-class.py)
+6. [AI Agent from REST FastAPI](./demos/6-fastapi-agent.py)

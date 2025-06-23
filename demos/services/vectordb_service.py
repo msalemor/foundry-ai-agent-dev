@@ -20,7 +20,8 @@ def read_file():
 
 async def poor_mans_vectordb():
     """Create a simple vector database from the file content."""
-    logger.info("Creating vector database from file content...")
+    # logger.info("Creating vector database from file content...")
+    logger.info(f"Creating a simple vector database from the file content...")
     paragraphs = read_file().split("\n\n")
     poor_man_vectordb = [
         {"chunk": p, "emb": await get_embeddings(p)} for p in paragraphs
@@ -30,7 +31,7 @@ async def poor_mans_vectordb():
 
 def _consine_similarity(vec1, vec2):
     """Calculate cosine similarity between two vectors."""
-    logger.info("Calculating cosine similarity...")
+    # logger.info("Calculating cosine similarity...")
     if len(vec1) != len(vec2):
         raise ValueError("Vectors must be of the same length")
     dot_product = sum(a * b for a, b in zip(vec1, vec2))

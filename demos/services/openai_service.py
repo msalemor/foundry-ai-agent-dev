@@ -64,9 +64,9 @@ async def get_embeddings(text: str) -> list[float]:
     """Generate embeddings for the given text using OpenAI API."""
     try:
         if text:
-            logger.info(
-                f"Generating embeddings for text: {text[:50]}..."
-            )  # Log first 50 chars
+            # logger.info(
+            #     f"Generating embeddings for text: {text[:50]}..."
+            # )  # Log first 50 chars
             response = await client.embeddings.create(
                 model="text-embedding-ada-002",  # or your deployed embedding model
                 input=text,
