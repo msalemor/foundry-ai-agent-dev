@@ -66,6 +66,19 @@ class AgentService:
             )
             self.state.set(self.name, "agentid", self.agent.id)
 
+    def reset_user_thread(self, userid: str) -> None:
+        """
+        Reset the thread for a specific user by removing the stored thread ID.
+        """
+        if self.state.exists(self.name, "thread-" + userid):
+            self.state.delete(self.name, "thread-" + userid)
+        else:
+            logger.warning(f"No thread found for user {userid} to reset.")
+
+        thread = self.client.agents.create_thread()
+        self.state.set(self.name, "thread-" + userid, thread.id)
+        logger.info(f"Thread for user {userid} has been reset.")
+
     def process_messages(self, messages: OpenAIPageableListOfThreadMessage) -> str:
         """
         Process a list of messages and return their responses.
