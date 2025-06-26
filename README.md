@@ -22,6 +22,9 @@ Azure AI Foundry AI Agents is a comprehensive platform for building, deploying, 
 - **Threads**: Conversation sessions that maintain context across multiple message exchanges
 - **Messages**: Individual communication units within a thread (user inputs and agent responses)
 
+References:
+- [Concepts - Threads, Runs and Messages](https://learn.microsoft.com/en-ca/azure/ai-foundry/agents/concepts/threads-runs-messages)
+
 ### Use Cases
 
 - Customer service chatbots
