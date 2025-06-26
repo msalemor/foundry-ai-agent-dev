@@ -11,7 +11,7 @@ from azure.identity import DefaultAzureCredential
 import click
 
 # NOTE: Added the CKVStore
-from services.message_processing import process_last_messages
+from services.message_processing import process_last_message
 from services.ckvstore_service import CategoryKeyValueStore
 from services.common import agent_cleanup
 from services.settings_service import get_settings
@@ -72,7 +72,7 @@ def process(userid: str, prompt: str) -> str:
         logger.info(f"Agent running with status: {run.status}")
         if run.status == "completed":
             messages = project_client.agents.list_messages(thread_id=thread.id)
-            return process_last_messages(project_client, messages)
+            return process_last_message(project_client, messages)
             # return messages.data[0].content if messages else "No response"
         if (
             run.status == "expired"

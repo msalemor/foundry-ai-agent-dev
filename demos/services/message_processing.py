@@ -7,7 +7,7 @@ from azure.ai.projects.models import (
 )
 
 
-def process_last_messages(
+def process_last_message(
     client: AIProjectClient,
     messages: OpenAIPageableListOfThreadMessage,
 ) -> str:
