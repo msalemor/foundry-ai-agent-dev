@@ -26,15 +26,8 @@ def process_last_messages(
             case "image_file":
                 id = content_item.image_file.file_id
                 response += f"Generated File ID: {id}.png\n"
-                bytes_content = None
-                byte_generator = client.agents.get_file_content(id)
-                for file_bytes in byte_generator:
-                    if bytes_content is None:
-                        bytes_content = file_bytes
-                    else:
-                        bytes_content += file_bytes
-                with open(f"{id}.png", "wb") as file:
-                    file.write(file_bytes)
+                client.agents.save_file(file_id=id, file_name=f"{id}.png")
+                response += f"File saved as {id}.png\n"
             case _:
                 return f"{str(content_item)}\n"
     return response

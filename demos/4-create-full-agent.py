@@ -140,26 +140,26 @@ def process(userid: str, prompt: str) -> str:
 
 if __name__ == "__main__":
 
-    # click.echo(
-    #     click.style(
-    #         process(
-    #             "user1", "What is the current time? What is the weather in New York?"
-    #         ),
-    #         fg="green",
-    #     )
-    # )
-    # click.echo(
-    #     click.style(
-    #         process("user1", "What are the company values?"),
-    #         fg="green",
-    #     )
-    # )
-    # click.echo(
-    #     click.style(
-    #         process("user1", "What is the 1001st prime number?"),
-    #         fg="green",
-    #     )
-    # )
+    click.echo(
+        click.style(
+            process(
+                "user1", "What is the current time? What is the weather in New York?"
+            ),
+            fg="green",
+        )
+    )
+    click.echo(
+        click.style(
+            process("user1", "What are the company values?"),
+            fg="green",
+        )
+    )
+    click.echo(
+        click.style(
+            process("user1", "What is the 1001st prime number?"),
+            fg="green",
+        )
+    )
     click.echo(
         click.style(
             process("user1", "Generate a chart of y=x^3 where x=[-5,5]?"),

@@ -1,5 +1,5 @@
 # Pending
-
+import click
 from services.ckvstore_service import CategoryKeyValueStore
 from services.agent_service import AgentService
 from azure.ai.agents.models import FunctionTool, ToolSet
@@ -18,12 +18,15 @@ if __name__ == "__main__":
     # Create or recall the agent
     state = CategoryKeyValueStore()
     agent_id = state.get(AGENT_NAME, "agentid")
+
     agent = AgentService(AGENT_NAME, toolset=tool_set, tools_delegate=tools_delegate)
     agent.create_or_reload_agent(agent_id)
 
     # Process a user's prompt using the agent
-    print(agent.process("user2", "What is the current time?"))
-    
+    click.echo(
+        click.style(agent.process("user2", "What is the current time?"), fg="green")
+    )
+
     if CLEAN_UP:
         # clean the files, threads, and agent
         agent.clean_up()

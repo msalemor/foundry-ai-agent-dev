@@ -7,6 +7,12 @@ from services.logger_service import get_logger
 from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 from azure.ai.agents.models import Agent, ToolSet
+from azure.ai.projects.models import (
+    OpenAIPageableListOfThreadMessage,
+    ThreadMessage,
+    MessageContent,
+    MessageTextContent,
+)
 
 logger = get_logger(__name__)
 
@@ -60,9 +66,27 @@ class AgentService:
             )
             self.state.set(self.name, "agentid", self.agent.id)
 
-    def process_messages(self, messages):
-        """Process messages from the agent."""
-        return messages.data[0].content if messages else "No response"
+    def process_messages(self, messages: OpenAIPageableListOfThreadMessage) -> str:
+        """
+        Process a list of messages and return their responses.
+        """
+        text_messages: list[MessageTextContent] = messages.text_messages
+        data: list[ThreadMessage] = messages.data
+        message: ThreadMessage = data[0] if data else None
+        content: list[MessageContent] = message.content if message else None
+        response = ""
+        for content_item in content:
+            match content_item.type:
+                case "text":
+                    response += f"{content_item.text.value}\n"
+                case "image_file":
+                    id = content_item.image_file.file_id
+                    response += f"Generated File ID: {id}.png\n"
+                    self.client.agents.save_file(file_id=id, file_name=f"{id}.png")
+                    response += f"File saved as {id}.png\n"
+                case _:
+                    return f"{str(content_item)}\n"
+        return response
 
     def process(self, userid: str, prompt: str) -> str:
         logger.info(f"Processing prompt for user {userid}: {prompt}")

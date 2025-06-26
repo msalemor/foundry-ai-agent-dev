@@ -47,9 +47,9 @@ async def main():
     await process("user1", "List three restaurants in London?")
     await process("user1", "List three more")
     await process("user1", "What time is it?")
-    await process("user2", "Summarize the company values?")
+    await process("user3", "Summarize the company values?")
     await process(
-        "user2", "Create a document 'values.docx' with the summary of company values."
+        "user4", "Create a document 'values.docx' with the summary of company values."
     )
 
 
