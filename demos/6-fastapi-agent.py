@@ -14,13 +14,21 @@ from tools.tools import tools_delegate, user_functions
 app = FastAPI()
 
 
-class Request(BaseModel):
+class ProcessRequest(BaseModel):
     userid: str
     prompt: str
 
 
-class Response(BaseModel):
+class ProcessResponse(BaseModel):
     content: str
+
+
+class ResetRequest(BaseModel):
+    userid: str
+
+
+class ResetResponse(BaseModel):
+    message: str
 
 
 app.add_middleware(
@@ -48,9 +56,9 @@ agent = AgentService(AGENT_NAME, toolset=tool_set, tools_delegate=tools_delegate
 agent.create_or_reload_agent(agent_id)
 
 
-@app.post("/process", response_model=Response)
+@app.post("/process", response_model=ProcessResponse)
 async def process(
-    request: Request,
+    request: ProcessRequest,
 ):
     # Call the agent and process the user's prompt
     if not request.userid or not request.prompt:
@@ -58,7 +66,15 @@ async def process(
         raise HTTPException(status_code=400, detail="userid and prompt are required")
 
     response = str(agent.process(request.userid, request.prompt))
-    return Response(content=response)
+    return ProcessResponse(content=response)
+
+
+@app.post("/reset", response_model=ResetResponse)
+async def reset_thread(
+    request: ResetRequest,
+):
+    agent.reset_user_thread(request.userid)
+    return ResetResponse(message=f"Thread for user {request.userid} has been reset.")
 
 
 if __name__ == "__main__":
