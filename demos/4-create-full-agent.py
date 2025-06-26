@@ -22,6 +22,7 @@ from azure.ai.agents.models import (
     CodeInterpreterToolResource,
 )
 
+from services.message_processing import process_last_messages
 from tools.tools import tools_delegate, user_functions
 
 
@@ -116,7 +117,8 @@ def process(userid: str, prompt: str) -> str:
         logger.info(f"Agent running with status: {run.status}")
         if run.status == "completed":
             messages = project_client.agents.list_messages(thread_id=thread.id)
-            return messages.data[0].content if messages else "No response"
+            # return messages.data[0].content if messages else "No response"
+            return process_last_messages(project_client, messages)
         if (
             run.status == "expired"
             or run.status == "failed"
@@ -138,29 +140,29 @@ def process(userid: str, prompt: str) -> str:
 
 if __name__ == "__main__":
 
+    # click.echo(
+    #     click.style(
+    #         process(
+    #             "user1", "What is the current time? What is the weather in New York?"
+    #         ),
+    #         fg="green",
+    #     )
+    # )
+    # click.echo(
+    #     click.style(
+    #         process("user1", "What are the company values?"),
+    #         fg="green",
+    #     )
+    # )
+    # click.echo(
+    #     click.style(
+    #         process("user1", "What is the 1001st prime number?"),
+    #         fg="green",
+    #     )
+    # )
     click.echo(
         click.style(
-            process(
-                "user1", "What is the current time? What is the weather in New York?"
-            ),
-            fg="green",
-        )
-    )
-    click.echo(
-        click.style(
-            process("user1", "What are the company values?"),
-            fg="green",
-        )
-    )
-    click.echo(
-        click.style(
-            process("user1", "What is the 1001st prime number?"),
-            fg="green",
-        )
-    )
-    click.echo(
-        click.style(
-            process("user1", "Generate a chart of y=x^2 where x=[-5,5]?"),
+            process("user1", "Generate a chart of y=x^3 where x=[-5,5]?"),
             fg="green",
         )
     )
