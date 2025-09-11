@@ -1,3 +1,16 @@
+# Updated to OpenAI: 1.107.1
+
+# Objective:
+# - Build a simple chatbot with RAG capabilities without using an AI agent framework.
+
+
+# Fundamentals
+# - Configure a bot with RAG (Retrieval Augmented Generation) capabilities
+# - Maintain conversation history for contextual interactions
+# - Use a simple in-memory vector database for document retrieval
+# - Handle multiple users with separate conversation states
+
+
 # TBD
 import click
 from services.vectordb_service import poor_mans_vectordb, search_vectordb
