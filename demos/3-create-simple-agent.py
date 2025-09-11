@@ -76,7 +76,13 @@ def process(user_id: str, prompt: str) -> str:
             # return process_last_message(project_client, messages)
             # return messages.data[0].content if messages else "No response"
             for message in messages:
-                print(message.content[0].text.value)
+                for content in message.content:
+                    if content.type == "text":
+                        print(message.role, " : ", content.text.value)
+                    else:
+                        print(f"Non-text content: {content.type}")
+                if message.role == "user":
+                    break
             return
         if (
             run.status == "expired"
