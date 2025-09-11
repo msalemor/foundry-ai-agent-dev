@@ -11,7 +11,7 @@ from azure.identity import DefaultAzureCredential
 import click
 
 # NOTE: Added the CKVStore
-from services.message_processing import process_last_message
+# from services.message_processing import process_last_message
 from services.ckvstore_service import CategoryKeyValueStore
 from services.common import agent_cleanup
 from services.settings_service import get_settings
@@ -25,15 +25,16 @@ AGENT_NAME = "simple-agent"
 CLEANUP = False
 
 
-project_client = AIProjectClient.from_connection_string(
-    conn_str=get_settings().connection_string, credential=DefaultAzureCredential()
+project_client = AIProjectClient(
+    credential=DefaultAzureCredential(),
+    endpoint=get_settings().endpoint,
 )
 
 
 def create_recall_agent() -> any:
     logger.info("Creating or retrieving recall agent...")
     agent = None
-    agent_id = store.get(AGENT_NAME, "agentid")
+    agent_id = store.get(AGENT_NAME, "agent_id")
     if agent_id:
         agent = project_client.agents.get_agent(agent_id)
     else:
@@ -44,36 +45,39 @@ def create_recall_agent() -> any:
             instructions="You are a helpful assistant.",
             temperature=0.1,
         )
-        store.set(AGENT_NAME, "agentid", agent.id)
+        store.set(AGENT_NAME, "agent_id", agent.id)
     return agent
 
 
 agent = create_recall_agent()
 
 
-def process(userid: str, prompt: str) -> str:
-    logger.info(f"Processing prompt for user {userid}: {prompt}")
+def process(user_id: str, prompt: str) -> str:
+    logger.info(f"Processing prompt for user {user_id}: {prompt}")
 
     thread = None
-    if store.exists(AGENT_NAME, "thread-" + userid):
-        thread_id = store.get(AGENT_NAME, "thread-" + userid)
-        thread = project_client.agents.get_thread(thread_id)
+    if store.exists(AGENT_NAME, "thread-" + user_id):
+        thread_id = store.get(AGENT_NAME, "thread-" + user_id)
+        thread = project_client.agents.threads.get(thread_id)
     else:
-        thread = project_client.agents.create_thread()
-        store.set(AGENT_NAME, "thread-" + userid, thread.id)
+        thread = project_client.agents.threads.create()
+        store.set(AGENT_NAME, "thread-" + user_id, thread.id)
 
-    message = project_client.agents.create_message(
+    message = project_client.agents.messages.create(
         thread_id=thread.id, role="user", content=prompt
     )
 
-    run = project_client.agents.create_run(thread_id=thread.id, agent_id=agent.id)
+    run = project_client.agents.runs.create(thread_id=thread.id, agent_id=agent.id)
     while True:
-        run = project_client.agents.get_run(thread_id=thread.id, run_id=run.id)
+        run = project_client.agents.runs.get(thread_id=thread.id, run_id=run.id)
         logger.info(f"Agent running with status: {run.status}")
         if run.status == "completed":
-            messages = project_client.agents.list_messages(thread_id=thread.id)
-            return process_last_message(project_client, messages)
+            messages = project_client.agents.messages.list(thread_id=thread.id)
+            # return process_last_message(project_client, messages)
             # return messages.data[0].content if messages else "No response"
+            for message in messages:
+                print(message.content[0].text.value)
+            return
         if (
             run.status == "expired"
             or run.status == "failed"

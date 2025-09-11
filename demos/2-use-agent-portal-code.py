@@ -1,4 +1,7 @@
-# Concepts:
+# Objective:
+# - Showcase using loading an agent, loading a thread, and listing the messages for a pre-provision Agent
+
+# Fundamentals:
 # - Load an existing agent and thread from the Azure AI Projects service
 # - List messages in the thread (in AI Message messages are persistent)
 # - Print the role and content of each message
@@ -20,23 +23,24 @@ if __name__ == "__main__":
     AGENT_NAME = "portal-agent"
 
     store = CategoryKeyValueStore()
-    store.set(AGENT_NAME, "agentid", "asst_vSadmbuvzji9rmoGGrN5yrPg")
-    store.set(AGENT_NAME, "threadid", "thread_O3tVMv81IoTqzNeXEiJfXLnx")
+    store.set(AGENT_NAME, "agent_id", "asst_O7kmJzvx0IQxVpZ3fpuTsAac")
+    store.set(AGENT_NAME, "thread_id", "thread_o3YosvSY559DDuNRP5xOhSDA")
 
     conn_str = get_settings().connection_string
-    agentid = store.get(AGENT_NAME, "agentid")
-    threadid = store.get(AGENT_NAME, "threadid")
+    agent_id = store.get(AGENT_NAME, "agent_id")
+    thread_id = store.get(AGENT_NAME, "thread_id")
 
     # Get a project client
-    project_client = AIProjectClient.from_connection_string(
-        conn_str=conn_str, credential=DefaultAzureCredential()
+    project_client = AIProjectClient(
+        credential=DefaultAzureCredential(),
+        endpoint=get_settings().endpoint,
     )
 
     # Get the agent by ID
-    agent = project_client.agents.get_agent(agentid)
+    agent = project_client.agents.get_agent(agent_id)
 
     # Get the thread by ID
-    thread = project_client.agents.get_thread(threadid)
+    thread = project_client.agents.threads.get(thread_id)
 
     # NOTE: Removed the following lines
     # message = project_client.agents.create_message(
@@ -46,7 +50,7 @@ if __name__ == "__main__":
     #     thread_id=thread.id, agent_id=agent.id
     # )
 
-    messages = project_client.agents.list_messages(thread_id=thread.id)
+    messages = project_client.agents.messages.list(thread_id=thread.id)
 
     # NOTE: Replaced the following lines
     # for text_message in messages.text_messages:
@@ -54,5 +58,7 @@ if __name__ == "__main__":
 
     # Display the role and content of each message
     # NOTE: The first message is the last message in the thread
-    for message in messages.data:
-        click.echo(click.style(f"{message.role}, {message.content}", fg="green"))
+    for message in messages:
+        click.echo(
+            click.style(f"{message.role}, {message.content[0].text.value}", fg="green")
+        )
