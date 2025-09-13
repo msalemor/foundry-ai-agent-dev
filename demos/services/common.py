@@ -1,3 +1,5 @@
+from azure.ai.projects import AIProjectClient
+from azure.ai.agents.models import FilePurpose
 from services.ckvstore_service import CategoryKeyValueStore
 from services.logger_service import get_logger
 
@@ -5,7 +7,7 @@ logger = get_logger(__name__)
 store = CategoryKeyValueStore()
 
 
-def get_openai_file(client, file_path: str) -> any:  # OpenAI file
+def get_openai_file(client: AIProjectClient, file_path: str) -> any:  # OpenAI file
     """ "Uploads a file to OpenAI and returns the file object.
     Args:
         client: The OpenAI client instance.
@@ -16,8 +18,8 @@ def get_openai_file(client, file_path: str) -> any:  # OpenAI file
     """
     logger.info(f"Uploading file: {file_path}")
     try:
-        file = client.agents.upload_file_and_poll(
-            file_path=file_path, purpose="assistants"
+        file = client.agents.files.upload_and_poll(
+            file_path=file_path, purpose=FilePurpose.AGENTS
         )
         return file
     except Exception as e:
@@ -25,7 +27,7 @@ def get_openai_file(client, file_path: str) -> any:  # OpenAI file
         return None
 
 
-def agent_cleanup(client, category: str, agent_id: str) -> None:
+def agent_cleanup(client: AIProjectClient, category: str, agent_id: str) -> None:
     """Cleans up the agent and its associated resources in the specified category.
 
     Args:
@@ -41,7 +43,7 @@ def agent_cleanup(client, category: str, agent_id: str) -> None:
                 logger.info(f"Deleting thread for key: {key}")
                 thread_id = items[key]
                 try:
-                    client.agents.delete_thread(thread_id)
+                    client.agents.threads.delete(thread_id)
                     store.delete(category, key)
                 except Exception as e:
                     logger.exception(f"Error deleting thread {thread_id}: {e}")
@@ -49,7 +51,7 @@ def agent_cleanup(client, category: str, agent_id: str) -> None:
                 logger.info(f"Deleting file for key: {key}")
                 file_id = items[key]
                 try:
-                    client.agents.delete_file(file_id)
+                    client.agents.files.delete(file_id)
                     store.delete(category, key)
                 except Exception as e:
                     logger.exception(f"Error deleting file {file_id}: {e}")
